@@ -20,6 +20,15 @@ if (config.use_env_variable) {
     config
   );
 }
+// Verificar a conexão com o banco de dados
+try {
+  console.log('Conexão com o banco de dados realizado com sucesso!');
+} catch (error) {
+  console.log(
+    'Erro: Conexão com o banco de dados não realizado com sucesso!',
+    error
+  );
+}
 
 fs.readdirSync(__dirname)
   .filter((file) => {
