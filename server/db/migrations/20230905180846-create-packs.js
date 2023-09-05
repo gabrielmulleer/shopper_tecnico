@@ -1,5 +1,4 @@
 'use strict';
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -8,15 +7,19 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.BIGINT,
+        type: Sequelize.INTEGER,
       },
       pack_id: {
         allowNull: false,
         type: Sequelize.BIGINT,
+        references: { model: 'products', key: 'code' },
+        onUpdate: 'CASCADE',
       },
       product_id: {
         allowNull: false,
         type: Sequelize.BIGINT,
+        references: { model: 'products', key: 'code' },
+        onUpdate: 'CASCADE',
       },
       qty: {
         allowNull: false,
@@ -24,8 +27,7 @@ module.exports = {
       },
     });
   },
-
-  async down(queryInterface) {
-    await queryInterface.dropTable('packs');
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('Packs');
   },
 };
