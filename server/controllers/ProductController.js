@@ -71,13 +71,20 @@ class ProductController {
           });
 
           if (product) {
-            await Product.update(
-              { sales_price: new_price },
-              {
-                attributes: ['code', 'name', 'cost_price', 'sales_price'],
-                where: { code: code },
-              }
-            );
+            // Verifique se o new_price não é menor que o cost_price
+            if (Number(new_price) >= Number(product.cost_price)) {
+              await Product.update(
+                { sales_price: new_price },
+                {
+                  attributes: ['code', 'name', 'cost_price', 'sales_price'],
+                  where: { code: code },
+                }
+              );
+            } else {
+              console.error(
+                `O novo preço (${new_price}) é menor que o preço de custo (${product.cost_price}) para o produto de código ${code}. A atualização foi ignorada.`
+              );
+            }
           }
         }
       }
