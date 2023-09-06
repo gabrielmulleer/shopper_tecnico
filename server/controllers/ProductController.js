@@ -3,13 +3,15 @@ const stream = require('stream');
 const readline = require('readline');
 const db = require('../db/models');
 const router = express.Router();
+
+const Product = db.Products;
 // Receber todos os produtos cadastrados
 
 class ProductController {
   // Criar a rota para cadastrar produto
   static pegaTodosProdutos = async (req, res) => {
     try {
-      const products = await db.Products.findAll({
+      const products = await Product.findAll({
         attributes: ['code', 'name', 'cost_price', 'sales_price'],
       });
       return res.status(200).json(products);
@@ -43,6 +45,47 @@ class ProductController {
       }
     }
     return res.json(products);
+  };
+
+  static atualizaProduto = async (req, res) => {
+    const { file } = req;
+    const { buffer } = file;
+
+    const readableFile = new stream.Readable();
+    readableFile.push(buffer);
+    readableFile.push(null);
+
+    const productsLine = readline.createInterface({
+      input: readableFile,
+    });
+    try {
+      for await (let line of productsLine) {
+        const columns = line.split(',');
+        if (!isNaN(Number(columns[0])) && !isNaN(Number(columns[1]))) {
+          const code = columns[0];
+          const new_price = columns[1];
+
+          const product = await Product.findOne({
+            attributes: ['code', 'name', 'cost_price', 'sales_price'],
+            where: { code: code },
+          });
+
+          if (product) {
+            await Product.update(
+              { sales_price: new_price },
+              {
+                attributes: ['code', 'name', 'cost_price', 'sales_price'],
+                where: { code: code },
+              }
+            );
+          }
+        }
+      }
+      return res.status(200).send('Produtos atualizados com sucesso');
+    } catch (error) {
+      console.error('Erro ao atualizar produtos:', error);
+      return res.status(500).send('Erro interno do servidor');
+    }
   };
 }
 

@@ -12,6 +12,11 @@ router
     '/products/csv',
     multerConfig.single('file'),
     ProductController.recebeCsv
+  )
+  .post(
+    '/products/atualiza',
+    multerConfig.single('file'),
+    ProductController.atualizaProduto
   );
 
 module.exports = router;

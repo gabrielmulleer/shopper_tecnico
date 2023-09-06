@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'Packs',
+      timestamps: false, // Desative timestamps
+      updatedAt: false, // Desative a coluna updatedAt
     }
   );
   return Packs;
