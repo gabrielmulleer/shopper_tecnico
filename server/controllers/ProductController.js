@@ -1,7 +1,8 @@
 const express = require('express');
-
-const router = express.Router();
+const stream = require('stream');
+const readline = require('readline');
 const db = require('../db/models');
+const router = express.Router();
 // Receber todos os produtos cadastrados
 
 class ProductController {
@@ -15,6 +16,33 @@ class ProductController {
     } catch (error) {
       return res.status(500).json(error.message);
     }
+  };
+
+  static recebeCsv = async (req, res) => {
+    const { file } = req;
+    const { buffer } = file;
+
+    const readableFile = new stream.Readable();
+    readableFile.push(buffer);
+    readableFile.push(null);
+
+    const productsLine = readline.createInterface({
+      input: readableFile,
+    });
+    const products = [];
+    for await (let line of productsLine) {
+      const productLineSplit = line.split(',');
+      if (
+        !isNaN(Number(productLineSplit[0])) &&
+        !isNaN(Number(productLineSplit[1]))
+      ) {
+        products.push({
+          product_code: Number(productLineSplit[0]),
+          new_price: Number(productLineSplit[1]),
+        });
+      }
+    }
+    return res.json(products);
   };
 }
 
