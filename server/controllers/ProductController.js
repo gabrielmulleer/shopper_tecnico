@@ -58,6 +58,10 @@ class ProductController {
     const productsLine = readline.createInterface({
       input: readableFile,
     });
+    const updatedProducts = [];
+    const skippedProducts = [];
+    const nonexistentProducts = [];
+
     try {
       for await (let line of productsLine) {
         const columns = line.split(',');
@@ -71,24 +75,76 @@ class ProductController {
           });
 
           if (product) {
+            const costPrice = parseFloat(product.cost_price);
+            const currentPrice = parseFloat(product.sales_price);
+            const newPrice = parseFloat(new_price);
+
             // Verifique se o new_price não é menor que o cost_price
-            if (Number(new_price) >= Number(product.cost_price)) {
-              await Product.update(
-                { sales_price: new_price },
-                {
-                  attributes: ['code', 'name', 'cost_price', 'sales_price'],
-                  where: { code: code },
-                }
-              );
+            if (newPrice >= costPrice) {
+              // Verifique se o reajuste não é maior que 10% do preço atual
+              const priceDifference = Math.abs(newPrice - currentPrice);
+              const maxAllowedDifference = currentPrice * 0.1;
+
+              if (priceDifference <= maxAllowedDifference) {
+                // Salve os valores antigos e novos para os produtos atualizados
+                updatedProducts.push({
+                  code: code,
+                  name: product.name,
+                  old_price: currentPrice,
+                  new_price: newPrice,
+                });
+
+                await Product.update(
+                  { sales_price: newPrice },
+                  {
+                    attributes: ['code', 'name', 'cost_price', 'sales_price'],
+                    where: { code: code },
+                  }
+                );
+              } else {
+                // Salve os produtos ignorados devido ao reajuste excessivo
+                skippedProducts.push({
+                  code: code,
+                  name: product.name,
+                  old_price: currentPrice,
+                  new_price: `O reajuste de preço (${newPrice}) é ${
+                    newPrice > currentPrice + maxAllowedDifference
+                      ? 'maior'
+                      : 'menor'
+                  } que 10% do preço atual (${currentPrice}).`,
+                });
+
+                console.error(
+                  `O reajuste de preço (${newPrice}) é maior que 10% do preço atual (${currentPrice}) para o produto de código ${code}. A atualização foi ignorada.`
+                );
+              }
             } else {
+              // Salve os produtos ignorados devido ao novo preço ser menor que o preço de custo
+              skippedProducts.push({
+                code: code,
+                name: product.name,
+                old_price: currentPrice,
+                new_price: `O novo preço (${newPrice}) é menor que o preço de custo (${costPrice}).`,
+              });
+
               console.error(
-                `O novo preço (${new_price}) é menor que o preço de custo (${product.cost_price}) para o produto de código ${code}. A atualização foi ignorada.`
+                `O novo preço (${newPrice}) é menor que o preço de custo (${costPrice}) para o produto de código ${code}. A atualização foi ignorada.`
               );
             }
+          } else {
+            // Salve os produtos que não existem na tabela
+            nonexistentProducts.push({ code: code });
           }
         }
       }
-      return res.status(200).send('Produtos atualizados com sucesso');
+
+      const result = {
+        updatedProducts: updatedProducts,
+        skippedProducts: skippedProducts,
+        nonexistentProducts: nonexistentProducts,
+      };
+
+      return res.status(200).json(result);
     } catch (error) {
       console.error('Erro ao atualizar produtos:', error);
       return res.status(500).send('Erro interno do servidor');
