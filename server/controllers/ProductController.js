@@ -22,7 +22,7 @@ class ProductController {
     }
   };
 
-  static recebeCsv = async (req, res) => {
+  static readCsv = async (req, res) => {
     const { file } = req;
     const { buffer } = file;
 
@@ -34,6 +34,7 @@ class ProductController {
       input: readableFile,
     });
     const products = [];
+
     for await (let line of productsLine) {
       const columns = line.split(',');
       if (!isNaN(Number(columns[0])) && !isNaN(Number(columns[1]))) {
@@ -44,19 +45,51 @@ class ProductController {
           attributes: ['code', 'name', 'cost_price', 'sales_price'],
           where: { code: code },
         });
-        const isPack = await Pack.findOne({
+
+        const isPack = await Pack.findAll({
           attributes: ['pack_id', 'product_id', 'qty'],
           where: { pack_id: code },
         });
-        products.push({
-          product_code: Number(code),
-          name: product.name,
-          costPrice: product.cost_price,
-          currentPrice: product.sales_price,
-          newPrice: Number(newPrice),
-          isPack: isPack ? true : false,
-          packId: isPack ? isPack.pack_id : `Not a pack`,
-        });
+
+        if (isPack.length > 0) {
+          const packInfo = [];
+
+          for (const pack of isPack) {
+            const packProduct = await Product.findOne({
+              attributes: ['code', 'name', 'cost_price', 'sales_price'],
+              where: { code: pack.product_id },
+            });
+
+            if (packProduct) {
+              packInfo.push({
+                pack_id: pack.pack_id,
+                product_id: pack.product_id,
+                qty: pack.qty,
+                name: packProduct.name,
+                costPrice: packProduct.cost_price,
+                currentPrice: packProduct.sales_price,
+              });
+            }
+          }
+
+          products.push({
+            product_code: Number(code),
+            name: product.name,
+            costPrice: product.cost_price,
+            currentPrice: product.sales_price,
+            newPrice: Number(newPrice),
+            isPack: packInfo, // Adicione informações do pacote aqui
+          });
+        } else {
+          products.push({
+            product_code: Number(code),
+            name: product.name,
+            costPrice: product.cost_price,
+            currentPrice: product.sales_price,
+            newPrice: Number(newPrice),
+            isPack: [],
+          });
+        }
       }
     }
     return res.json(products);

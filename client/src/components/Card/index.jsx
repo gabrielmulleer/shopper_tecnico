@@ -1,7 +1,12 @@
 import Validate from '../../utils/Validacoes';
+import { useState } from 'react';
 export default function Card({ data }) {
-  console.log(data);
-  Validate(data);
+  const [newPrice, setNewPrice] = useState(data.newPrice);
+  const handleOnChange = (e) => {
+    setNewPrice(e.target.value.replace(',', '.'));
+  };
+  const newData = { ...data, newPrice: newPrice == '' ? 0 : newPrice };
+
   return (
     <div>
       <input
@@ -41,12 +46,17 @@ export default function Card({ data }) {
         name='newPrice'
         id=''
         placeholder='Valor atualizado'
-        disabled={true}
-        value={data.newPrice}
+        value={newPrice}
+        onChange={handleOnChange}
       />
-      {Validate(data) && <p>{Validate(data)}</p>}
+      {Validate(newData) && <p>{Validate(newData)}</p>}
       {data.isPack && (
-        <input type='checkbox' name='isPack' id='' checked={data.isPack} />
+        <input
+          type='checkbox'
+          name='isPack'
+          id=''
+          checked={data.isPack.length > 1}
+        />
       )}
     </div>
   );

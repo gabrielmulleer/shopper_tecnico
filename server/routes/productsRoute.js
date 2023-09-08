@@ -8,11 +8,7 @@ const router = Router();
 
 router
   .get('/products', ProductController.pegaTodosProdutos)
-  .post(
-    '/products/csv',
-    multerConfig.single('file'),
-    ProductController.recebeCsv
-  )
+  .post('/products/csv', multerConfig.single('file'), ProductController.readCsv)
   .post(
     '/products/atualiza',
     multerConfig.single('file'),
