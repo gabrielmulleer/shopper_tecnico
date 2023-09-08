@@ -35,14 +35,20 @@ class ProductController {
     });
     const products = [];
     for await (let line of productsLine) {
-      const productLineSplit = line.split(',');
-      if (
-        !isNaN(Number(productLineSplit[0])) &&
-        !isNaN(Number(productLineSplit[1]))
-      ) {
+      const columns = line.split(',');
+      if (!isNaN(Number(columns[0])) && !isNaN(Number(columns[1]))) {
+        const code = columns[0];
+        const newPrice = columns[1];
+
+        const product = await Product.findOne({
+          attributes: ['code', 'name', 'cost_price', 'sales_price'],
+          where: { code: code },
+        });
         products.push({
-          product_code: Number(productLineSplit[0]),
-          new_price: Number(productLineSplit[1]),
+          product_code: Number(code),
+          name: product.name,
+          currentPrice: product.sales_price,
+          newPrice: Number(newPrice),
         });
       }
     }
