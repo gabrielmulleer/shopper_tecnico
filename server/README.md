@@ -1,22 +1,22 @@
-### Instalar todas as dependencias
+### 1º Instalar todas as dependencias
 
 ```
 npm install
-```
-
-### Criar a database do projeto
+``` 
+### 2º Alterar o arquivo .env.exemple para .env e substituir os valores que se adequem ao seu sql
+### 3º Criar a database do projeto
 
 ```
 npx sequelize-cli db:create
 ```
 
-### Executar as migrations para criar as tabelas do projeto
+### 4º Executar as migrations para criar as tabelas do projeto
 
 ```
 npm sequelize-cli db:migrate
 ```
 
-### Executar as seeds para criar os registros do projeto
+### 5º Executar as seeds para criar os registros do projeto
 
 ```
 npm sequelize-cli db:seed:all
