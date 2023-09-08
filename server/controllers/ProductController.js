@@ -44,11 +44,18 @@ class ProductController {
           attributes: ['code', 'name', 'cost_price', 'sales_price'],
           where: { code: code },
         });
+        const isPack = await Pack.findOne({
+          attributes: ['pack_id', 'product_id', 'qty'],
+          where: { pack_id: code },
+        });
         products.push({
           product_code: Number(code),
           name: product.name,
+          costPrice: product.cost_price,
           currentPrice: product.sales_price,
           newPrice: Number(newPrice),
+          isPack: isPack ? true : false,
+          packId: isPack ? isPack.pack_id : `Not a pack`,
         });
       }
     }
