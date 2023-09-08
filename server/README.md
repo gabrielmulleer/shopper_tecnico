@@ -3,7 +3,7 @@
 ```
 npm install
 ``` 
-### 2º Alterar o arquivo .env.exemple para .env e substituir os valores que se adequem ao seu sql
+### 2º Alterar o arquivo .env.exemple para .env e substituir os valores para que se adeque ao seu sql
 ### 3º Criar a database do projeto
 
 ```
