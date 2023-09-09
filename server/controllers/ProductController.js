@@ -22,6 +22,7 @@ class ProductController {
       input: readableFile,
     });
     const products = [];
+
     const updatedProducts = [];
     const skippedProducts = [];
     const nonexistentProducts = [];
@@ -31,7 +32,7 @@ class ProductController {
         const code = columns[0];
         const newPrice = columns[1];
 
-        // Verifique se o produto com o código especificado existe no banco de dados
+
         const product = await Product.findOne({
           attributes: ['code', 'name', 'cost_price', 'sales_price'],
           where: { code: code },
@@ -93,6 +94,7 @@ class ProductController {
 
     return res.status(200).json(result);
   }
+
 
   static async atualizaProduto(req, res) {
     const { file } = req;

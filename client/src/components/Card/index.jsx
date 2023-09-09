@@ -29,7 +29,7 @@ export default function Card({ data, updateData }) {
       )
     );
 
-    // Restante do código...
+
   };
 
   const newData = {
@@ -38,7 +38,7 @@ export default function Card({ data, updateData }) {
     isValid: isValid, // Agora, isValid reflete o resultado da validação
   };
 
-  // console.log(data);
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.wrapper__product}>

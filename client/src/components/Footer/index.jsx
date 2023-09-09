@@ -1,3 +1,4 @@
+
 import styles from './Footer.module.scss';
 export default function Footer() {
   return (
@@ -5,4 +6,5 @@ export default function Footer() {
       <span>© Gabriel Müller Pereira. All Right Reserved</span>
     </footer>
   );
+
 }
