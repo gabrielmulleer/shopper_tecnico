@@ -93,7 +93,7 @@ function CsvUploader() {
       <h2>Upload de Arquivo CSV</h2>
       <form onSubmit={handleSubmit}>
         <input type='file' accept='.csv' onChange={handleFileChange} />
-        <button type='submit'>Enviar CSV</button>
+        <button type='submit'>VALIDAR</button>
       </form>
 
       <div className={styles.card}>
@@ -132,7 +132,7 @@ function CsvUploader() {
           disabled={!verificaBotao}
           onClick={handleUpdateProducts}
         >
-          Atualizar Produtos
+          ATUALIZAR
         </button>
       )}
     </div>
