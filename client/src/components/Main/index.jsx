@@ -83,7 +83,7 @@ function CsvUploader() {
       // Lide com erros de solicitação, se necessário
     }
   };
-  console.log(areAllObjectsValid(dadosAtualizados));
+  console.log(dados);
   useEffect(() => {
     // Esta parte é importante para atualizar verificaBotao quando os dados são carregados
     setVerificaBotao(areAllObjectsValid(dadosAtualizados));

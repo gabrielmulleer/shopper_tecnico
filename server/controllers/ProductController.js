@@ -22,7 +22,9 @@ class ProductController {
       input: readableFile,
     });
     const products = [];
-
+    const updatedProducts = [];
+    const skippedProducts = [];
+    const nonexistentProducts = [];
     for await (let line of productsLine) {
       const columns = line.split(',');
       if (!isNaN(Number(columns[0])) && !isNaN(Number(columns[1]))) {
@@ -70,6 +72,8 @@ class ProductController {
             newPrice: Number(newPrice),
             isPack: packInfo,
           });
+        } else {
+          nonexistentProducts.push({ code: code });
         }
       }
     }
