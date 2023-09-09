@@ -1,3 +1,8 @@
+import styles from './Footer.module.scss';
 export default function Footer() {
-  return <div>footer</div>;
+  return (
+    <footer className={styles.wrapper}>
+      <span>© Gabriel Müller Pereira. All Right Reserved</span>
+    </footer>
+  );
 }

@@ -1,17 +1,32 @@
-// src/components/CsvUploader.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Card from '../Card';
+import styles from './Main.module.scss';
+import PackCard from '../PackCard';
+import Validate from '../../utils/Validacoes';
 
 function CsvUploader() {
-  const data = [
-    { product_code: 16, new_price: 23 },
-    { product_code: 18, new_price: 20 },
-  ];
   const [csvFile, setCsvFile] = useState(null);
   const [dados, setDados] = useState([]);
+  const [dadosAtualizados, setDadosAtualizados] = useState([]);
+  const [verificaBotao, setVerificaBotao] = useState(true);
+
   const handleFileChange = (e) => {
     setCsvFile(e.target.files[0]);
+  };
+  const processCSVData = async (csvData) => {
+    // Crie um novo array de objetos com a chave 'isValid' após a validação
+    const processedData = await Promise.all(
+      csvData.map(async (item) => {
+        // Valide o item usando a função Validate
+        const isValid = typeof Validate(item) === 'boolean';
+
+        // Crie um novo objeto com a chave 'isValid'
+        return { ...item, isValid };
+      })
+    );
+
+    return processedData;
   };
 
   const handleSubmit = async (e) => {
@@ -27,7 +42,7 @@ function CsvUploader() {
 
     try {
       const response = await axios.post(
-        'http://localhost:3000/products/csv',
+        'http://localhost:3000/products/readCsv',
         formData,
         {
           headers: {
@@ -36,22 +51,67 @@ function CsvUploader() {
         }
       );
 
-      setDados(response.data);
+      // Chame a função processCSVData para validar os dados
+      const validatedData = await processCSVData(response.data);
+
+      setDados(validatedData);
+      setDadosAtualizados(validatedData);
     } catch (error) {
       console.error('Erro ao enviar o arquivo CSV:', error);
     }
   };
-
+  const updateData = (updatedData) => {
+    setDadosAtualizados(updatedData);
+  };
+  const areAllObjectsValid = (data) => {
+    return data.every((item) => item.isValid === true);
+  };
+  console.log(areAllObjectsValid(dadosAtualizados));
+  useEffect(() => {
+    // Esta parte é importante para atualizar verificaBotao quando os dados são carregados
+    setVerificaBotao(areAllObjectsValid(dadosAtualizados));
+  }, [dadosAtualizados]);
   return (
-    <div>
+    <div className={styles.wrapper}>
       <h2>Upload de Arquivo CSV</h2>
       <form onSubmit={handleSubmit}>
         <input type='file' accept='.csv' onChange={handleFileChange} />
         <button type='submit'>Enviar CSV</button>
       </form>
-      {dados.map((element) => (
-        <Card key={element.product_code} data={element} />
-      ))}
+
+      <div className={styles.card}>
+        {dados.map((element) => (
+          <div key={element.productCode} className={styles.card__content}>
+            {element.isPack && element.isPack.length > 0 ? (
+              <>
+                <h2>Kit</h2>
+                <Card
+                  key={element.productCode}
+                  data={element}
+                  updateData={updateData}
+                />
+
+                <span>Componente do kit: </span>
+                {element.isPack.map((elementPack) => (
+                  <PackCard
+                    key={elementPack.productCode}
+                    dataPack={elementPack}
+                  />
+                ))}
+              </>
+            ) : (
+              <Card
+                key={element.productCode}
+                data={element}
+                updateData={updateData}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+      <button type='submit' disabled={!verificaBotao}>
+        Atualizar Produtos
+      </button>
     </div>
   );
 }

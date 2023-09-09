@@ -1,6 +1,6 @@
 export default function Validate(data) {
-  console.log(data);
   // Função para validar o preço
+
   function validatePrice(currentPrice, newPrice, costPrice) {
     return (
       newPrice >= costPrice &&
@@ -16,18 +16,18 @@ export default function Validate(data) {
   // Função para obter a razão do preço inválido
   function getInvalidPriceReason(currentPrice, newPrice, costPrice) {
     if (parseFloat(newPrice) < parseFloat(costPrice)) {
-      return `O novo preço (${newPrice}) é menor que o preço de custo (${costPrice}).`;
+      return `* O novo preço (${newPrice}) é menor que o preço de custo (${costPrice}).`;
     }
     if (
       parseFloat(newPrice) >=
       parseFloat(currentPrice) + parseFloat(currentPrice * 0.1)
     ) {
-      return `O reajuste de preço (${newPrice}) é maior que 10% do preço atual (${currentPrice}).`;
+      return `* O reajuste de preço (${newPrice}) é maior que 10% do preço atual (${currentPrice}).`;
     } else if (
       parseFloat(newPrice) <=
       parseFloat(currentPrice) - parseFloat(currentPrice * 0.1)
     ) {
-      return `O reajuste de preço (${newPrice}) é menor que 10% do preço atual (${currentPrice}).`;
+      return `* O reajuste de preço (${newPrice}) é menor que 10% do preço atual (${currentPrice}).`;
     }
   }
   const errorMsg = getInvalidPriceReason(

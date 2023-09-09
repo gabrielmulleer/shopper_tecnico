@@ -1,0 +1,23 @@
+.wrapper{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 3rem;
+    form{
+        display: flex;
+        flex-direction: column;
+    }
+    .card{
+    display: flex;
+    
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 1rem;
+    &__content{
+        background: #e2e1e1;
+        padding: 1rem;
+
+    }
+}}
