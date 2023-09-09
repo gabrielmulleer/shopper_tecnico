@@ -126,13 +126,15 @@ function CsvUploader() {
           </div>
         ))}
       </div>
-      <button
-        type='submit'
-        disabled={!verificaBotao}
-        onClick={handleUpdateProducts}
-      >
-        Atualizar Produtos
-      </button>
+      {dadosAtualizados.length > 0 && (
+        <button
+          type='submit'
+          disabled={!verificaBotao}
+          onClick={handleUpdateProducts}
+        >
+          Atualizar Produtos
+        </button>
+      )}
     </div>
   );
 }
