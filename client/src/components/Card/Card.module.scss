@@ -1,0 +1,20 @@
+.wrapper{
+    padding: 1rem 0;
+    &__product{
+        font-size: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    &__valid{
+        border: 2px solid rgb(0, 165, 0);
+        background: rgba(0, 255, 0, 0.267);
+    }
+    &__invalid{
+        border: 2px solid rgb(255, 0, 0);
+        background: rgba(255, 0, 0, 0.267);
+    }
+    .errorMsg{
+        font-size: 16px;
+        color: rgb(255, 0, 0);
+    }
+}

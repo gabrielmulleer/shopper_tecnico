@@ -1,3 +1,4 @@
+
 ### 1º Instalar todas as dependencias
 
 ```
@@ -21,3 +22,4 @@ npm sequelize-cli db:migrate
 ```
 npm sequelize-cli db:seed:all
 ```
+

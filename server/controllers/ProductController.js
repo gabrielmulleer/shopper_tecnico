@@ -23,23 +23,27 @@ class ProductController {
     });
     const products = [];
 
+    const updatedProducts = [];
+    const skippedProducts = [];
+    const nonexistentProducts = [];
     for await (let line of productsLine) {
       const columns = line.split(',');
       if (!isNaN(Number(columns[0])) && !isNaN(Number(columns[1]))) {
         const code = columns[0];
         const newPrice = columns[1];
 
+
         const product = await Product.findOne({
           attributes: ['code', 'name', 'cost_price', 'sales_price'],
           where: { code: code },
         });
 
-        const isPack = await Pack.findAll({
-          attributes: ['pack_id', 'product_id', 'qty'],
-          where: { pack_id: code },
-        });
+        if (product) {
+          const isPack = await Pack.findAll({
+            attributes: ['pack_id', 'product_id', 'qty'],
+            where: { pack_id: code },
+          });
 
-        if (isPack.length > 0) {
           const packInfo = [];
 
           for (const pack of isPack) {
@@ -67,22 +71,30 @@ class ProductController {
             costPrice: product.cost_price,
             currentPrice: product.sales_price,
             newPrice: Number(newPrice),
-            isPack: packInfo, // Adicione informações do pacote aqui
+            isPack: packInfo,
           });
         } else {
-          products.push({
-            productCode: Number(code),
-            name: product.name,
-            costPrice: product.cost_price,
-            currentPrice: product.sales_price,
-            newPrice: Number(newPrice),
-            isPack: [],
-          });
+          nonexistentProducts.push({ code: code });
         }
       }
     }
+
     return res.json(products);
   };
+
+  static async atualizaProduto2(req, res) {
+    const { updatedProducts, skippedProducts, nonexistentProducts } =
+      await processUpdatedProducts(req.body);
+
+    const result = {
+      updatedProducts: updatedProducts,
+      skippedProducts: skippedProducts,
+      nonexistentProducts: nonexistentProducts,
+    };
+
+    return res.status(200).json(result);
+  }
+
 
   static async atualizaProduto(req, res) {
     const { file } = req;
@@ -272,6 +284,62 @@ async function processCSV2(buffer) {
   return { updatedProducts, skippedProducts, nonexistentProducts };
 }
 
+async function processUpdatedProducts(updatedProducts) {
+  const updatedProductsList = [];
+  const skippedProducts = [];
+  const nonexistentProducts = [];
+
+  for (const productData of updatedProducts) {
+    const code = productData.productCode;
+    const newPrice = productData.newPrice;
+
+    const product = await Product.findOne({
+      attributes: ['code', 'name', 'cost_price', 'sales_price'],
+      where: { code: code },
+    });
+
+    if (product) {
+      const costPrice = parseFloat(product.cost_price);
+      const currentPrice = parseFloat(product.sales_price);
+      const newPriceFloat = parseFloat(newPrice);
+      console.log(currentPrice);
+      const isValidPrice = validatePrice(
+        currentPrice,
+        newPriceFloat,
+        costPrice
+      );
+
+      if (isValidPrice) {
+        await updateProductPrice(Product, code, newPriceFloat);
+        updatedProductsList.push({
+          code: code,
+          name: product.name,
+          old_price: currentPrice,
+          new_price: newPriceFloat,
+        });
+      } else {
+        skippedProducts.push({
+          code: code,
+          name: product.name,
+          old_price: currentPrice,
+          new_price: getInvalidPriceReason(
+            currentPrice,
+            newPriceFloat,
+            costPrice
+          ),
+        });
+      }
+    } else {
+      nonexistentProducts.push({ code: code });
+    }
+  }
+
+  return {
+    updatedProducts: updatedProductsList,
+    skippedProducts,
+    nonexistentProducts,
+  };
+}
 // Função para validar o preço
 function validatePrice(currentPrice, newPrice, costPrice) {
   return (
@@ -308,5 +376,4 @@ function getInvalidPriceReason(currentPrice, newPrice, costPrice) {
     return `* O reajuste de preço (${newPrice}) é menor que 10% do preço atual (${currentPrice}).`;
   }
 }
-
 module.exports = ProductController;
