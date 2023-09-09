@@ -17,6 +17,7 @@ router
     '/products/update',
     multerConfig.single('file'),
     ProductController.atualizaProduto
-  );
+  )
+  .post('/products/update-products', ProductController.atualizaProduto2);
 
 module.exports = router;

@@ -66,6 +66,23 @@ function CsvUploader() {
   const areAllObjectsValid = (data) => {
     return data.every((item) => item.isValid === true);
   };
+  const handleUpdateProducts = async () => {
+    try {
+      // Faça a solicitação POST para a rota apropriada no servidor
+      const response = await axios.post(
+        'http://localhost:3000/products/update-products',
+        dadosAtualizados
+      );
+
+      // Lide com a resposta do servidor, se necessário
+      console.log('Resposta do servidor:', response.data);
+
+      // Atualize o estado ou faça qualquer outra coisa com a resposta, se necessário
+    } catch (error) {
+      console.error('Erro ao atualizar produtos:', error);
+      // Lide com erros de solicitação, se necessário
+    }
+  };
   console.log(areAllObjectsValid(dadosAtualizados));
   useEffect(() => {
     // Esta parte é importante para atualizar verificaBotao quando os dados são carregados
@@ -109,7 +126,11 @@ function CsvUploader() {
           </div>
         ))}
       </div>
-      <button type='submit' disabled={!verificaBotao}>
+      <button
+        type='submit'
+        disabled={!verificaBotao}
+        onClick={handleUpdateProducts}
+      >
         Atualizar Produtos
       </button>
     </div>
